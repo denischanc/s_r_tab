@@ -7,6 +7,7 @@
 #include <dirent.h>
 #include <string.h>
 #include <libgen.h>
+#include "config.h"
 
 #define SPACE 2
 
@@ -23,30 +24,27 @@
 char * extensions[] =
 {
   "c", "C", "cpp", "cxx", "cc", "java", "h", "pl", "php", "e", "l", "y", "js",
-  NULL
+  "xml", "json", NULL
 };
-
-char * version = "1.15";
 
 /*******************************************************************************
 *******************************************************************************/
 
 #define USAGE_MSG \
-  "Usage: %s [ file ... ] [ directory ... ]\n" \
+  "Usage: %s ([option...]) [ file ... ] [ directory ... ]\n" \
   "Options:\n" \
   "     -V, --version                      Display version number\n" \
   "     -R, --recursive                    Recursive\n" \
+  "     -S, --space [nb]                  Tab space number\n" \
   "Extensions: "
 
 void display_extensions(FILE * f)
 {
-  int i;
-  char * extension = extensions[0];
-
-  for(i = 0; extension != NULL; extension = extensions[++i])
+  char ** extension;
+  for(extension = extensions; *extension != NULL; extension++)
   {
-    if(i == 0) fprintf(f, extension);
-    else fprintf(f, ",%s", extension);
+    if(extension == extensions) fprintf(f, *extension);
+    else fprintf(f, ",%s", *extension);
   }
 }
 
@@ -422,7 +420,7 @@ int processArg(int argc, char * argv[], int action)
   {
     if(!strcmp(argv[i], "-V") || !strcmp(argv[i], "--version"))
     {
-      fprintf(stdout, "Version: %s\n", version);
+      fprintf(stdout, "Version: " PACKAGE_VERSION "\n");
     }
     else if(!strcmp(argv[i], "-R") || !strcmp(argv[i], "--recursive"))
     {
