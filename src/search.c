@@ -25,7 +25,7 @@ static int concat_line(char ** msg, int line)
     if(!tmp)
     {
       fprintf(stderr, "Not enough memory ...\n");
-      return ERR;
+      return __FALSE;
     }
     tmp[0] = 0;
     strcat(tmp, *msg);
@@ -40,14 +40,14 @@ static int concat_line(char ** msg, int line)
     if(!tmp)
     {
       fprintf(stderr, "Not enough memory ...\n");
-      return ERR;
+      return __FALSE;
     }
     tmp[0] = 0;
     strcat(tmp, buffer);
   }
 
   *msg = tmp;
-  return VAL;
+  return __TRUE;
 }
 
 /*******************************************************************************
@@ -65,7 +65,7 @@ static int loop(FILE * file, char ** tabMsg, char ** endlineMsg)
       case '\n':
         if(spaceTab)
         {
-          if(!concat_line(endlineMsg, line)) return ERR;
+          if(!concat_line(endlineMsg, line)) return __FALSE;
         }
         spaceTab = 0;
         line++;
@@ -73,7 +73,7 @@ static int loop(FILE * file, char ** tabMsg, char ** endlineMsg)
 
       case '\t':
         spaceTab++;
-        if(!concat_line(tabMsg, line)) return ERR;
+        if(!concat_line(tabMsg, line)) return __FALSE;
         break;
 
       case ' ': spaceTab++; break;
@@ -81,7 +81,7 @@ static int loop(FILE * file, char ** tabMsg, char ** endlineMsg)
       default: spaceTab = 0;
     }
   }
-  return VAL;
+  return __TRUE;
 }
 
 /*******************************************************************************
@@ -91,12 +91,12 @@ int file_search(const char * name)
 {
   FILE * file = fopen(name, "r");
   char * tabMsg = 0, * endlineMsg = 0;
-  int result = VAL;
+  int result = __TRUE;
 
   if(!file)
   {
     fprintf(stderr, "Unable to open file : [%s]\n", name);
-    return ERR;
+    return __FALSE;
   }
 
   if(loop(file, &tabMsg, &endlineMsg))
@@ -110,7 +110,7 @@ int file_search(const char * name)
         fprintf(stdout, "\tEnd line: %s\n", endlineMsg);
     }
   }
-  else result = ERR;
+  else result = __FALSE;
 
   if(tabMsg) free(tabMsg);
   if(endlineMsg) free(endlineMsg);

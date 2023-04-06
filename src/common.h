@@ -1,8 +1,8 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
-#define ERR (0 == 1) /* error */
-#define VAL (0 == 0) /* valid */
+#define __FALSE (0 == 1)
+#define __TRUE (0 == 0)
 
 #define __UNDEFINE 0
 #define __SEARCH 1

@@ -6,6 +6,9 @@
 #include <errno.h>
 #include "common.h"
 #include "extension.h"
+#include "process.h"
+#include "s_r_tab.h"
+#include "replace.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -13,7 +16,7 @@
 static struct option long_options[] =
 {
   {"version", no_argument, NULL, 'v'},
-  {"recursive", no_argument, NULL, 'r'},
+  {"norecursion", no_argument, NULL, 'r'},
   {"space", required_argument, NULL, 's'},
   {"extensions", required_argument, NULL, 'e'},
   {NULL, 0, NULL, 0}
@@ -24,16 +27,11 @@ static const char * short_options = "vrs:e:";
 /*******************************************************************************
 *******************************************************************************/
 
-int dis_version = ERR, recursive = ERR, nb_space = 2;
-
-/*******************************************************************************
-*******************************************************************************/
-
 #define USAGE_MSG \
   "Usage: %s ([option...]) [ file ... ] [ directory ... ]\n" \
   "Options:\n" \
   "     -v, --version                      Display version number\n" \
-  "     -r, --recursive                    Recursive\n" \
+  "     -r, --norecursion                  No recursion\n" \
   "     -s, --space                        Space nb for tab (%d)\n" \
   "     -e, --extensions                   Other extensions (ext1:...)\n" \
   "Extensions: "
@@ -55,23 +53,23 @@ int parse_args(int argc, char * const argv[])
   {
     switch(v)
     {
-      case 'v': dis_version = VAL; break;
+      case 'v': dis_version = __TRUE; break;
 
-      case 'r': recursive = VAL; break;
+      case 'r': recursive = __FALSE; break;
 
       case 's':
         nb_space = atoi(optarg);
         if(nb_space <= 0)
         {
           fprintf(stderr, "Invalid number : [%s]\n", optarg);
-          return ERR;
+          return __FALSE;
         }
         break;
 
       case 'e': add_extensions(optarg); break;
 
-      default: return ERR;
+      default: return __FALSE;
     }
   }
-  return VAL;
+  return __TRUE;
 }

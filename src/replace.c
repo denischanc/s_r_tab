@@ -11,6 +11,11 @@
 /*******************************************************************************
 *******************************************************************************/
 
+int nb_space = 2;
+
+/*******************************************************************************
+*******************************************************************************/
+
 #define BUFFER_SIZE 10000
 
 static int copy(const char * src, const char * dest)
@@ -24,13 +29,13 @@ static int copy(const char * src, const char * dest)
   {
     if(fileDest) fclose(fileDest);
     fprintf(stderr, "Unable to open file : [%s]\n", src);
-    return ERR;
+    return __FALSE;
   }
   if(!fileDest)
   {
     fclose(fileSrc);
     fprintf(stderr, "Unable to open file : [%s]\n", dest);
-    return ERR;
+    return __FALSE;
   }
 
   while((size = fread(buffer, sizeof(char), BUFFER_SIZE, fileSrc)) != 0)
@@ -40,13 +45,13 @@ static int copy(const char * src, const char * dest)
       fprintf(stderr, "Unable to write into file : [%s]\n", dest);
       fclose(fileSrc);
       fclose(fileDest);
-      return ERR;
+      return __FALSE;
     }
   }
 
   fclose(fileSrc);
   fclose(fileDest);
-  return VAL;
+  return __TRUE;
 }
 
 /*******************************************************************************
@@ -62,27 +67,27 @@ static int loop(FILE * file, FILE * pid_file, const char * pid_name,
   {
     switch(c)
     {
-      case '\t': space_tab += nb_space; *modified = VAL; break;
+      case '\t': space_tab += nb_space; *modified = __TRUE; break;
       case ' ': space_tab++; break;
 
-      case '\n': if(space_tab != 0) *modified = VAL; space_tab = 0;
+      case '\n': if(space_tab != 0) *modified = __TRUE; space_tab = 0;
 
       default:
-        error = ERR;
+        error = __FALSE;
 
         for(i = 0; i < space_tab; i++)
-          if(!fprintf(pid_file, " ")) error = VAL;
+          if(!fprintf(pid_file, " ")) error = __TRUE;
         space_tab = 0;
-        if(!fprintf(pid_file, "%c", c)) error = VAL;
+        if(!fprintf(pid_file, "%c", c)) error = __TRUE;
 
         if(error)
         {
           fprintf(stderr, "Unable to write into file : [%s]\n", pid_name);
-          return ERR;
+          return __FALSE;
         }
     }
   }
-  return VAL;
+  return __TRUE;
 }
 
 /*******************************************************************************
@@ -97,13 +102,13 @@ static int do_result(int modified, const char * name, const char * pidName)
     {
       fprintf(stderr, "Unable to copy [%s] into [%s]\n", pidName, name);
       fprintf(stderr, "Delete [%s] yourself ...\n", pidName);
-      return ERR;
+      return __FALSE;
     }
   }
   else fprintf(stdout, "File not modified : [%s]\n", name);
 
   remove(pidName);
-  return VAL;
+  return __TRUE;
 }
 
 /*******************************************************************************
@@ -113,12 +118,12 @@ int file_replace(const char * name)
 {
   FILE * file = fopen(name, "r"), * pidFile;
   char * pidName;
-  int modified = ERR, result;
+  int modified = __FALSE, result;
 
   if(!file)
   {
     fprintf(stderr, "Unable to open file : [%s]\n", name);
-    return ERR;
+    return __FALSE;
   }
 
   pidName = (char *)malloc((strlen(name) + 20) * sizeof(char));
@@ -126,7 +131,7 @@ int file_replace(const char * name)
   {
     fprintf(stderr, "Not enough memory ...\n");
     fclose(file);
-    return ERR;
+    return __FALSE;
   }
   sprintf(pidName, "%s.%d", name, getpid());
   pidFile = fopen(pidName, "w");
@@ -134,7 +139,7 @@ int file_replace(const char * name)
   {
     fprintf(stderr, "Unable to open temporary file : [%s]\n", pidName);
     fclose(file); free(pidName);
-    return ERR;
+    return __FALSE;
   }
 
   result = loop(file, pidFile, pidName, &modified);

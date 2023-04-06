@@ -10,7 +10,11 @@
 #include "search.h"
 #include "replace.h"
 #include "extension.h"
-#include "usage.h"
+
+/*******************************************************************************
+*******************************************************************************/
+
+int recursive = __TRUE;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -25,7 +29,7 @@ static int process_file(const char * path, int action, int lvl)
       case __REPLACE: return file_replace(path);
     }
   }
-  return VAL;
+  return __TRUE;
 }
 
 /*******************************************************************************
@@ -46,14 +50,14 @@ static char * dir_cat_path(const char * path, const struct dirent * field)
   return resName;
 }
 
-static int process_path(const char * path, int action, int recursive, int lvl);
+static int process_path(const char * path, int action, int lvl);
 
-static int process_dir(const char * path, int action, int recursive, int lvl)
+static int process_dir(const char * path, int action, int lvl)
 {
   DIR * dir;
   struct dirent * field;
   char * fullPath;
-  int result = VAL;
+  int result = __TRUE;
 
   dir = opendir(path);
   if(dir)
@@ -63,7 +67,7 @@ static int process_dir(const char * path, int action, int recursive, int lvl)
       if(strcmp(field -> d_name, ".") && strcmp(field -> d_name, ".."))
       {
         fullPath = dir_cat_path(path, field);
-        if(!process_path(fullPath, action, recursive, lvl)) result = ERR;
+        if(!process_path(fullPath, action, lvl)) result = __FALSE;
         free(fullPath);
       }
     }
@@ -73,14 +77,14 @@ static int process_dir(const char * path, int action, int recursive, int lvl)
   else
   {
     fprintf(stderr, "Unable to open directory [%s]\n", path);
-    return ERR;
+    return __FALSE;
   }
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static int process_path(const char * path, int action, int recursive, int lvl)
+static int process_path(const char * path, int action, int lvl)
 {
   struct stat buf;
 
@@ -90,9 +94,9 @@ static int process_path(const char * path, int action, int recursive, int lvl)
     {
       if((lvl <= 0) || recursive)
       {
-        return process_dir(path, action, recursive, lvl + 1);
+        return process_dir(path, action, lvl + 1);
       }
-      return VAL;
+      return __TRUE;
     }
     else if(S_ISREG(buf.st_mode))
     {
@@ -107,7 +111,7 @@ static int process_path(const char * path, int action, int recursive, int lvl)
   {
     perror(__FUNCTION__);
   }
-  return ERR;
+  return __FALSE;
 }
 
 /*******************************************************************************
@@ -119,7 +123,7 @@ int process_file_dir(int argc, char * argv[], int action)
 
   for(i = optind; i < argc; i++)
   {
-    if(!process_path(argv[i], action, recursive, 0))
+    if(!process_path(argv[i], action, 0))
     {
       result = EXIT_FAILURE;
     }
