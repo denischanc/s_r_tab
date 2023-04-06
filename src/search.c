@@ -18,11 +18,11 @@ static int concat_line(char ** msg, int line)
   sprintf(buffer, "%d", line);
   size = strlen(buffer);
 
-  if(*msg != 0)
+  if(*msg != NULL)
   {
     size += strlen(*msg) + 3;
     tmp = (char *)malloc(size * sizeof(char));
-    if(!tmp)
+    if(tmp == NULL)
     {
       fprintf(stderr, "Not enough memory ...\n");
       return __FALSE;
@@ -37,7 +37,7 @@ static int concat_line(char ** msg, int line)
   {
     size += 1;
     tmp = (char *)malloc(size * sizeof(char));
-    if(!tmp)
+    if(tmp == NULL)
     {
       fprintf(stderr, "Not enough memory ...\n");
       return __FALSE;
@@ -47,40 +47,39 @@ static int concat_line(char ** msg, int line)
   }
 
   *msg = tmp;
+
   return __TRUE;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static int loop(FILE * file, char ** tabMsg, char ** endlineMsg)
+static int loop(FILE * file, char ** tab_msg, char ** endline_msg)
 {
   char c;
-  int line = 1, spaceTab = 0;
+  int line = 1, space_tab = 0;
 
   while(fread(&c, sizeof(char), 1, file) == 1)
   {
     switch(c)
     {
       case '\n':
-        if(spaceTab)
-        {
-          if(!concat_line(endlineMsg, line)) return __FALSE;
-        }
-        spaceTab = 0;
+        if((space_tab != 0) && !concat_line(endline_msg, line)) return __FALSE;
+        space_tab = 0;
         line++;
         break;
 
       case '\t':
-        spaceTab++;
-        if(!concat_line(tabMsg, line)) return __FALSE;
+        space_tab++;
+        if(!concat_line(tab_msg, line)) return __FALSE;
         break;
 
-      case ' ': spaceTab++; break;
+      case ' ': space_tab++; break;
 
-      default: spaceTab = 0;
+      default: space_tab = 0;
     }
   }
+
   return __TRUE;
 }
 
@@ -90,7 +89,7 @@ static int loop(FILE * file, char ** tabMsg, char ** endlineMsg)
 int file_search(const char * name)
 {
   FILE * file = fopen(name, "r");
-  char * tabMsg = 0, * endlineMsg = 0;
+  char * tab_msg = NULL, * endline_msg = NULL;
   int result = __TRUE;
 
   if(!file)
@@ -99,21 +98,21 @@ int file_search(const char * name)
     return __FALSE;
   }
 
-  if(loop(file, &tabMsg, &endlineMsg))
+  if(loop(file, &tab_msg, &endline_msg))
   {
-    if(tabMsg || endlineMsg)
+    if(tab_msg || endline_msg)
     {
       fprintf(stdout, "-----[%s]-----\n", name);
-      if(tabMsg)
-        fprintf(stdout, "\tTab: %s\n", tabMsg);
-      if(endlineMsg)
-        fprintf(stdout, "\tEnd line: %s\n", endlineMsg);
+      if(tab_msg)
+        fprintf(stdout, "\tTab: %s\n", tab_msg);
+      if(endline_msg)
+        fprintf(stdout, "\tEnd line: %s\n", endline_msg);
     }
   }
   else result = __FALSE;
 
-  if(tabMsg) free(tabMsg);
-  if(endlineMsg) free(endlineMsg);
+  if(tab_msg) free(tab_msg);
+  if(endline_msg) free(endline_msg);
   fclose(file);
 
   return result;
