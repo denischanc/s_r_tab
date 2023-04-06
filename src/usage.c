@@ -35,7 +35,7 @@ int dis_version = ERR, recursive = ERR, nb_space = 2;
   "     -v, --version                      Display version number\n" \
   "     -r, --recursive                    Recursive\n" \
   "     -s, --space                        Space nb for tab (%d)\n" \
-  "     -e, --extensions                   Other extensions (ext1,...)\n" \
+  "     -e, --extensions                   Other extensions (ext1:...)\n" \
   "Extensions: "
 
 void usage(const char * exe)

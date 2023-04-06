@@ -46,7 +46,7 @@ static int extension_valid_help(const char * name, const char ** extensions)
       if(name[diff - 1] == '.')
       {
         j = 0;
-        while((name[diff + j] == *extension[j]) && (j < size)) j++;
+        while((name[diff + j] == (*extension)[j]) && (j < size)) j++;
         if(j == size) return VAL;
       }
     }
@@ -66,11 +66,14 @@ int extension_valid(const char * name)
 void add_extensions(char * extensions)
 {
   char * start = extensions, * cur = extensions;
-  int i = 0;
-  while(i >= 0)
+  int i = 0, done = ERR;
+
+  while(!done)
   {
-    if((*cur == ',') || (*cur == 0))
+    if((*cur == ':') || (*cur == 0))
     {
+      if(*cur == 0) done = VAL;
+
       if(cur > start)
       {
         *cur = 0;
@@ -79,7 +82,6 @@ void add_extensions(char * extensions)
       start = cur + 1;
     }
 
-    if(*cur == 0) i = -1;
-    else cur++;
+    cur++;
   }
 }
