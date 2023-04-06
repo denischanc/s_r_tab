@@ -6,11 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "common.h"
-
-/*******************************************************************************
-*******************************************************************************/
-
-#define SPACE 2
+#include "usage.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -56,32 +52,32 @@ static int copy(const char * src, const char * dest)
 /*******************************************************************************
 *******************************************************************************/
 
-static int loop(FILE * file, FILE * pidFile, const char * pidName,
+static int loop(FILE * file, FILE * pid_file, const char * pid_name,
   int * modified)
 {
   char c;
-  int spaceTab = 0, i, error;
+  int space_tab = 0, i, error;
 
   while(fread(&c, sizeof(char), 1, file) == 1)
   {
     switch(c)
     {
-      case '\t': spaceTab += SPACE; *modified = VAL; break;
-      case ' ': spaceTab++; break;
+      case '\t': space_tab += nb_space; *modified = VAL; break;
+      case ' ': space_tab++; break;
 
-      case '\n': if(spaceTab != 0) *modified = VAL; spaceTab = 0;
+      case '\n': if(space_tab != 0) *modified = VAL; space_tab = 0;
 
       default:
         error = ERR;
 
-        for(i = 0; i < spaceTab; i++)
-          if(!fprintf(pidFile, " ")) error = VAL;
-        spaceTab = 0;
-        if(!fprintf(pidFile, "%c", c)) error = VAL;
+        for(i = 0; i < space_tab; i++)
+          if(!fprintf(pid_file, " ")) error = VAL;
+        space_tab = 0;
+        if(!fprintf(pid_file, "%c", c)) error = VAL;
 
         if(error)
         {
-          fprintf(stderr, "Unable to write into file : [%s]\n", pidName);
+          fprintf(stderr, "Unable to write into file : [%s]\n", pid_name);
           return ERR;
         }
     }
@@ -125,7 +121,7 @@ int file_replace(const char * name)
     return ERR;
   }
 
-  pidName = (char *)malloc((strlen(name) + 10) * sizeof(char));
+  pidName = (char *)malloc((strlen(name) + 20) * sizeof(char));
   if(!pidName)
   {
     fprintf(stderr, "Not enough memory ...\n");

@@ -15,9 +15,9 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static int process_file(const char * path, int action)
+static int process_file(const char * path, int action, int lvl)
 {
-  if(extension_valid(path))
+  if((lvl == 0) || extension_valid(path))
   {
     switch(action)
     {
@@ -96,7 +96,7 @@ static int process_path(const char * path, int action, int recursive, int lvl)
     }
     else if(S_ISREG(buf.st_mode))
     {
-      return process_file(path, action);
+      return process_file(path, action, lvl);
     }
     else
     {
