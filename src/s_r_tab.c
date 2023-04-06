@@ -45,5 +45,5 @@ int main(int argc, char * argv[])
 
   if(dis_version) fprintf(stdout, "Version: " PACKAGE_VERSION "\n");
 
-  return process_file_dir(argc, argv, action);
+  return process_file_dir(argc, argv, action) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

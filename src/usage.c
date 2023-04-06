@@ -28,7 +28,7 @@ static const char * short_options = "vrs:e:";
 *******************************************************************************/
 
 #define USAGE_MSG \
-  "Usage: %s ([option...]) [ file ... ] [ directory ... ]\n" \
+  "Usage: %s ([option...]) [file...] [directory...]\n" \
   "Options:\n" \
   "     -v, --version                      Display version number\n" \
   "     -r, --norecursion                  No recursion\n" \

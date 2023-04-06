@@ -38,16 +38,16 @@ static int process_file(const char * path, int action, int lvl)
 static char * dir_cat_path(const char * path, const struct dirent * field)
 {
   int size;
-  char * resName;
+  char * res_name;
 
   size = strlen(path) + strlen(field -> d_name) + 2;
-  resName = (char *)malloc(size * sizeof(char));
-  resName[0] = 0;
-  strcat(resName, path);
-  strcat(resName, "/");
-  strcat(resName, field -> d_name);
+  res_name = (char *)malloc(size * sizeof(char));
+  res_name[0] = 0;
+  strcat(res_name, path);
+  strcat(res_name, "/");
+  strcat(res_name, field -> d_name);
 
-  return resName;
+  return res_name;
 }
 
 static int process_path(const char * path, int action, int lvl);
@@ -56,7 +56,6 @@ static int process_dir(const char * path, int action, int lvl)
 {
   DIR * dir;
   struct dirent * field;
-  char * fullPath;
   int result = __TRUE;
 
   dir = opendir(path);
@@ -66,12 +65,13 @@ static int process_dir(const char * path, int action, int lvl)
     {
       if(strcmp(field -> d_name, ".") && strcmp(field -> d_name, ".."))
       {
-        fullPath = dir_cat_path(path, field);
-        if(!process_path(fullPath, action, lvl)) result = __FALSE;
-        free(fullPath);
+        char * full_path = dir_cat_path(path, field);
+        if(!process_path(full_path, action, lvl)) result = __FALSE;
+        free(full_path);
       }
     }
     closedir(dir);
+
     return result;
   }
   else
@@ -92,25 +92,14 @@ static int process_path(const char * path, int action, int lvl)
   {
     if(S_ISDIR(buf.st_mode))
     {
-      if((lvl <= 0) || recursive)
-      {
-        return process_dir(path, action, lvl + 1);
-      }
+      if((lvl <= 0) || recursive) return process_dir(path, action, lvl + 1);
       return __TRUE;
     }
-    else if(S_ISREG(buf.st_mode))
-    {
-      return process_file(path, action, lvl);
-    }
-    else
-    {
-      fprintf(stderr, "[%s] not directory or regular file\n", path);
-    }
+    else if(S_ISREG(buf.st_mode)) return process_file(path, action, lvl);
+    else fprintf(stderr, "[%s] not directory or regular file\n", path);
   }
-  else
-  {
-    perror(__FUNCTION__);
-  }
+  else perror(__FUNCTION__);
+
   return __FALSE;
 }
 
@@ -119,14 +108,11 @@ static int process_path(const char * path, int action, int lvl)
 
 int process_file_dir(int argc, char * argv[], int action)
 {
-  int i, result = EXIT_SUCCESS;
+  int i, result = __TRUE;
 
   for(i = optind; i < argc; i++)
   {
-    if(!process_path(argv[i], action, 0))
-    {
-      result = EXIT_FAILURE;
-    }
+    if(!process_path(argv[i], action, 0)) result = __FALSE;
   }
 
   return result;

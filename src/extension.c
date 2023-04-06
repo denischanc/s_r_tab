@@ -50,23 +50,23 @@ void display_extensions(FILE * f)
 
 int extension_valid(const char * name)
 {
-  int size, j, diff;
   const char ** extensions = __extensions();
 
   for(int i = 0; i < extensions_size; i++, extensions++)
   {
-    size = strlen(*extensions);
-    diff = strlen(name) - size;
+    int size = strlen(*extensions);
+    int diff = strlen(name) - size;
     if(diff > 1)
     {
       if(name[diff - 1] == '.')
       {
-        j = 0;
+        int j = 0;
         while((name[diff + j] == (*extensions)[j]) && (j < size)) j++;
         if(j == size) return __TRUE;
       }
     }
   }
+
   return __FALSE;
 }
 
