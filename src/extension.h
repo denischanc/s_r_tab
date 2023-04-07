@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-void display_extensions(FILE * f);
+void display_extensions();
 
 int extension_valid(const char * name);
 

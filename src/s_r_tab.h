@@ -3,4 +3,6 @@
 
 extern int dis_version;
 
+void print_version(int to);
+
 #endif

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "common.h"
+#include "console.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -35,13 +36,13 @@ static const char ** __extensions()
 /*******************************************************************************
 *******************************************************************************/
 
-void display_extensions(FILE * f)
+void display_extensions()
 {
   const char ** extensions = __extensions();
   for(int i = 0; i < extensions_size; i++)
   {
-    if(i == 0) fprintf(f, *extensions++);
-    else fprintf(f, ":%s", *extensions++);
+    if(i == 0) console_err(*extensions++);
+    else console_err(":%s", *extensions++);
   }
 }
 

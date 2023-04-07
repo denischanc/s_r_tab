@@ -5,6 +5,7 @@
 #include "common.h"
 #include "search-simple.h"
 #include "search-verbose.h"
+#include "console.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -56,11 +57,7 @@ int file_search(const char * name)
 {
   FILE * file = fopen(name, "r");
 
-  if(!file)
-  {
-    fprintf(stderr, "Unable to open file : [%s]\n", name);
-    return __FALSE;
-  }
+  if(!file) return console_err("Unable to open file : [%s]\n", name);
 
   scanner = verbose ? &scanner_verbose : &scanner_simple;
 

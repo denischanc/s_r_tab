@@ -9,6 +9,7 @@
 #include "s_r_tab.h"
 #include "replace.h"
 #include "search.h"
+#include "console.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -40,9 +41,10 @@ static const char * short_options = "vrs:e:V";
 
 void usage(const char * exe)
 {
-  fprintf(stderr, USAGE_MSG, exe, nb_space);
-  display_extensions(stderr);
-  fprintf(stderr, "\n");
+  print_version(TO_ERR);
+  console_err(USAGE_MSG, exe, nb_space);
+  display_extensions();
+  console_err("\n");
 }
 
 /*******************************************************************************
@@ -62,10 +64,7 @@ int parse_args(int argc, char * const argv[])
       case 's':
         nb_space = atoi(optarg);
         if(nb_space <= 0)
-        {
-          fprintf(stderr, "Invalid number : [%s]\n", optarg);
-          return __FALSE;
-        }
+          return console_err("Invalid number : [%s]\n", optarg);
         break;
 
       case 'e': add_extensions(optarg); break;

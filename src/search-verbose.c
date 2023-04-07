@@ -5,6 +5,7 @@
 #include "common.h"
 #include "buffer.h"
 #include "replace.h"
+#include "console.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -69,10 +70,11 @@ static int cr(const char * name, int line)
 {
   if(!buffer_is_empty(&space_buf) || (nb_tab > 0))
   {
-    printf("[%s:%d] ", name, line);
-    if(!buffer_is_empty(&line_buf)) printf(line_buf.buffer);
-    if(!buffer_is_empty(&space_buf)) printf("\e[41m%s\e[0m", space_buf.buffer);
-    printf("\n");
+    console_out("[%s:%d] ", name, line);
+    if(!buffer_is_empty(&line_buf)) console_out(line_buf.buffer);
+    if(!buffer_is_empty(&space_buf))
+      console_out("\e[41m%s\e[0m", space_buf.buffer);
+    console_out("\n");
   }
 
   nb_tab = 0;

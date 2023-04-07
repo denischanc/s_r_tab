@@ -10,6 +10,7 @@
 #include "search.h"
 #include "replace.h"
 #include "extension.h"
+#include "console.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -74,11 +75,7 @@ static int process_dir(const char * path, int action, int lvl)
 
     return result;
   }
-  else
-  {
-    fprintf(stderr, "Unable to open directory [%s]\n", path);
-    return __FALSE;
-  }
+  else return console_err("Unable to open directory [%s]\n", path);
 }
 
 /*******************************************************************************
@@ -96,11 +93,9 @@ static int process_path(const char * path, int action, int lvl)
       return __TRUE;
     }
     else if(S_ISREG(buf.st_mode)) return process_file(path, action, lvl);
-    else fprintf(stderr, "[%s] not directory or regular file\n", path);
+    else return console_err("[%s] not directory or regular file\n", path);
   }
-  else perror(__FUNCTION__);
-
-  return __FALSE;
+  else return console_errno(__FUNCTION__);
 }
 
 /*******************************************************************************

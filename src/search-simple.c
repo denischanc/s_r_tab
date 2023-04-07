@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "common.h"
 #include "buffer.h"
+#include "console.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -89,11 +90,11 @@ static int stop(const char * name, int line)
 
   if(!buffer_is_empty(&tab_msg_buf) || !buffer_is_empty(&endline_msg_buf))
   {
-    printf("-----[%s]-----\n", name);
+    console_out("-----[%s]-----\n", name);
     if(!buffer_is_empty(&tab_msg_buf))
-      printf("\tTab: %s\n", tab_msg_buf.buffer);
+      console_out("\tTab: %s\n", tab_msg_buf.buffer);
     if(!buffer_is_empty(&endline_msg_buf))
-      printf("\tEnd line: %s\n", endline_msg_buf.buffer);
+      console_out("\tEnd line: %s\n", endline_msg_buf.buffer);
   }
 
   return __TRUE;

@@ -6,6 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "common.h"
+#include "console.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -26,21 +27,19 @@ static int copy(const char * src, const char * dst)
   if(!file_src)
   {
     if(file_dst) fclose(file_dst);
-    fprintf(stderr, "Unable to open file : [%s]\n", src);
-    return __FALSE;
+    return console_err("Unable to open file : [%s]\n", src);
   }
   if(!file_dst)
   {
     fclose(file_src);
-    fprintf(stderr, "Unable to open file : [%s]\n", dst);
-    return __FALSE;
+    return console_err("Unable to open file : [%s]\n", dst);
   }
 
   while((size = fread(buffer, sizeof(char), BUFFER_SIZE, file_src)) != 0)
   {
     if((fwrite(buffer, sizeof(char), size, file_dst)) != size)
     {
-      fprintf(stderr, "Unable to write into file : [%s]\n", dst);
+      console_err("Unable to write into file : [%s]\n", dst);
       fclose(file_src);
       fclose(file_dst);
       return __FALSE;
@@ -80,10 +79,7 @@ static int loop(FILE * file, FILE * pid_file, const char * pid_name,
         if(!fprintf(pid_file, "%c", c)) error = __TRUE;
 
         if(error)
-        {
-          fprintf(stderr, "Unable to write into file : [%s]\n", pid_name);
-          return __FALSE;
-        }
+          return console_err("Unable to write into file : [%s]\n", pid_name);
     }
   }
 
@@ -97,15 +93,14 @@ static int end_replace(int modified, const char * name, const char * pid_name)
 {
   if(modified)
   {
-    if(copy(pid_name, name)) fprintf(stdout, "File modified : [%s]\n", name);
+    if(copy(pid_name, name)) console_out("File modified : [%s]\n", name);
     else
     {
-      fprintf(stderr, "Unable to copy [%s] into [%s]\n", pid_name, name);
-      fprintf(stderr, "Delete [%s] yourself ...\n", pid_name);
-      return __FALSE;
+      console_err("Unable to copy [%s] into [%s]\n", pid_name, name);
+      return console_err("Delete [%s] yourself ...\n", pid_name);
     }
   }
-  else fprintf(stdout, "File not modified : [%s]\n", name);
+  else console_out("File not modified : [%s]\n", name);
 
   remove(pid_name);
 
@@ -121,16 +116,12 @@ int file_replace(const char * name)
   char * pid_name;
   int modified = __FALSE, result;
 
-  if(!file)
-  {
-    fprintf(stderr, "Unable to open file : [%s]\n", name);
-    return __FALSE;
-  }
+  if(!file) return console_err("Unable to open file : [%s]\n", name);
 
   pid_name = (char *)malloc((strlen(name) + 20) * sizeof(char));
   if(!pid_name)
   {
-    fprintf(stderr, "Not enough memory ...\n");
+    console_errno(__FUNCTION__);
     fclose(file);
     return __FALSE;
   }
@@ -138,7 +129,7 @@ int file_replace(const char * name)
   pid_file = fopen(pid_name, "w");
   if(!pid_file)
   {
-    fprintf(stderr, "Unable to open temporary file : [%s]\n", pid_name);
+    console_err("Unable to open temporary file : [%s]\n", pid_name);
     fclose(file); free(pid_name);
     return __FALSE;
   }

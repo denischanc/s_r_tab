@@ -10,7 +10,8 @@ s_r_tab_SOURCES = \
   search-simple.c \
   search-verbose.c \
   replace.c \
-  buffer.c
+  buffer.c \
+  console.c
 
 noinst_HEADERS = \
   common.h \
@@ -22,7 +23,8 @@ noinst_HEADERS = \
   search-simple.h \
   search-verbose.h \
   replace.h \
-  buffer.h
+  buffer.h \
+  console.h
 
 install-exec-hook:
 	ln -sf s_r_tab $(DESTDIR)$(bindir)/s_tab

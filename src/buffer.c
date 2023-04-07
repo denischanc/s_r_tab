@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "common.h"
+#include "console.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -31,11 +32,7 @@ int buffer_add(BUFFER * buffer, char c)
     buffer -> size_max += INC;
     buffer -> buffer = (char *)realloc(buffer -> buffer, buffer -> size_max);
 
-    if(buffer -> buffer == NULL)
-    {
-      perror(__FUNCTION__);
-      return __FALSE;
-    }
+    if(buffer -> buffer == NULL) return console_errno(__FUNCTION__);
   }
 
   if(buffer -> size == 0) buffer -> size = 1;

@@ -9,6 +9,7 @@
 #include "usage.h"
 #include "process.h"
 #include "config.h"
+#include "console.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -24,6 +25,14 @@ int dis_version = __FALSE;
 /*******************************************************************************
 *******************************************************************************/
 
+void print_version(int to)
+{
+  console(to, "Version: " PACKAGE_VERSION "\n");
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 int main(int argc, char * argv[])
 {
   int action = __UNDEFINE;
@@ -33,7 +42,7 @@ int main(int argc, char * argv[])
   else if(!strcmp(basename_, EXE_REPLACE)) action = __REPLACE;
   else
   {
-    fprintf(stderr, "Bad executable name : [%s]\n", basename_);
+    console_err("Bad executable name : [%s]\n", basename_);
     return EXIT_FAILURE;
   }
 
@@ -43,7 +52,7 @@ int main(int argc, char * argv[])
     return EXIT_FAILURE;
   }
 
-  if(dis_version) fprintf(stdout, "Version: " PACKAGE_VERSION "\n");
+  if(dis_version) print_version(TO_OUT);
 
   return process_file_dir(argc, argv, action) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
