@@ -1,0 +1,11 @@
+Search/Replace Tabulation
+=========================
+
+== Install
+
+[source, shell]
+----
+#> ./configure
+#> make
+#> make install
+----
