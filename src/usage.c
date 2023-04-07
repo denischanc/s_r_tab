@@ -3,12 +3,12 @@
 
 #include <getopt.h>
 #include <stdlib.h>
-#include <errno.h>
 #include "common.h"
 #include "extension.h"
 #include "process.h"
 #include "s_r_tab.h"
 #include "replace.h"
+#include "search.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -19,10 +19,11 @@ static struct option long_options[] =
   {"norecursion", no_argument, NULL, 'r'},
   {"space", required_argument, NULL, 's'},
   {"extensions", required_argument, NULL, 'e'},
+  {"verbose", no_argument, NULL, 'V'},
   {NULL, 0, NULL, 0}
 };
 
-static const char * short_options = "vrs:e:";
+static const char * short_options = "vrs:e:V";
 
 /*******************************************************************************
 *******************************************************************************/
@@ -34,6 +35,7 @@ static const char * short_options = "vrs:e:";
   "     -r, --norecursion                  No recursion\n" \
   "     -s, --space                        Space nb for tab (%d)\n" \
   "     -e, --extensions                   Other extensions (ext1:...)\n" \
+  "     -V, --verbose                      Verbose\n" \
   "Extensions: "
 
 void usage(const char * exe)
@@ -67,6 +69,8 @@ int parse_args(int argc, char * const argv[])
         break;
 
       case 'e': add_extensions(optarg); break;
+
+      case 'V': verbose = __TRUE; break;
 
       default: return __FALSE;
     }

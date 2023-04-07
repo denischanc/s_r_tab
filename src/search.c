@@ -1,86 +1,52 @@
 
 #include "search.h"
 
-#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include "common.h"
+#include "search-simple.h"
+#include "search-verbose.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
-static int concat_line(char ** msg, int line)
+int verbose = __FALSE;
+
+static SEARCH_SCANNER * scanner;
+
+static int line;
+
+/*******************************************************************************
+*******************************************************************************/
+
+int search_cat_line(BUFFER * buffer)
 {
-  static char buffer[12];
-  char * tmp;
-  int size = 0;
-
-  sprintf(buffer, "%d", line);
-  size = strlen(buffer);
-
-  if(*msg != NULL)
-  {
-    size += strlen(*msg) + 3;
-    tmp = (char *)malloc(size * sizeof(char));
-    if(tmp == NULL)
-    {
-      fprintf(stderr, "Not enough memory ...\n");
-      return __FALSE;
-    }
-    tmp[0] = 0;
-    strcat(tmp, *msg);
-    strcat(tmp, ", ");
-    strcat(tmp, buffer);
-    free(*msg);
-  }
-  else
-  {
-    size += 1;
-    tmp = (char *)malloc(size * sizeof(char));
-    if(tmp == NULL)
-    {
-      fprintf(stderr, "Not enough memory ...\n");
-      return __FALSE;
-    }
-    tmp[0] = 0;
-    strcat(tmp, buffer);
-  }
-
-  *msg = tmp;
-
-  return __TRUE;
+  static char line_string[12];
+  snprintf(line_string, sizeof(line_string), "%d", line);
+  return buffer_add_string(buffer, line_string);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static int loop(FILE * file, char ** tab_msg, char ** endline_msg)
+static int loop(const char * name, FILE * file)
 {
-  char c;
-  int line = 1, space_tab = 0;
+  line = 1;
 
+  scanner -> start();
+
+  char c;
   while(fread(&c, sizeof(char), 1, file) == 1)
   {
     switch(c)
     {
-      case '\n':
-        if((space_tab != 0) && !concat_line(endline_msg, line)) return __FALSE;
-        space_tab = 0;
-        line++;
-        break;
-
-      case '\t':
-        space_tab++;
-        if(!concat_line(tab_msg, line)) return __FALSE;
-        break;
-
-      case ' ': space_tab++; break;
-
-      default: space_tab = 0;
+      case '\n': if(!scanner -> cr(name, line)) return __FALSE; line++; break;
+      case '\t': if(!scanner -> tab()) return __FALSE; break;
+      case ' ': if(!scanner -> space()) return __FALSE; break;
+      default: if(!scanner -> other(c)) return __FALSE;
     }
   }
 
-  return __TRUE;
+  return scanner -> stop(name, line);
 }
 
 /*******************************************************************************
@@ -89,8 +55,6 @@ static int loop(FILE * file, char ** tab_msg, char ** endline_msg)
 int file_search(const char * name)
 {
   FILE * file = fopen(name, "r");
-  char * tab_msg = NULL, * endline_msg = NULL;
-  int result = __TRUE;
 
   if(!file)
   {
@@ -98,23 +62,11 @@ int file_search(const char * name)
     return __FALSE;
   }
 
-  if(loop(file, &tab_msg, &endline_msg))
-  {
-    if(tab_msg || endline_msg)
-    {
-      fprintf(stdout, "-----[%s]-----\n", name);
-      if(tab_msg)
-        fprintf(stdout, "\tTab: %s\n", tab_msg);
-      if(endline_msg)
-        fprintf(stdout, "\tEnd line: %s\n", endline_msg);
-    }
-  }
-  else result = __FALSE;
+  scanner = verbose ? &scanner_verbose : &scanner_simple;
 
-  if(tab_msg) free(tab_msg);
-  if(endline_msg) free(endline_msg);
+  int result = loop(name, file);
+
   fclose(file);
 
   return result;
 }
-
