@@ -1,10 +1,23 @@
 #!/bin/sh
 
-TO_RM="aclocal.m4 autom4te.cache _build compile config.guess config.rpath"
-TO_RM+=" config.sub configure depcomp _install install-sh m4 missing"
-TO_RM+=" $(find . -name Makefile.in | tr '\n' ' ')"
-TO_RM+=" src/config.h.in"
+THIS_HOME=$(dirname $0)
 
-CMD="rm -rf $TO_RM"
-echo "[[$CMD]]"
-eval "$CMD"
+do_rm() {
+	local ELMT_LIST=$1
+	if [ -n "$ELMT_LIST" ]
+	then
+		echo "REMOVE: [$ELMT_LIST]"
+		rm -rf $ELMT_LIST
+	fi
+}
+
+process_pattern() {
+	local PATTERN=$1
+	local ELMT_LIST=$(find $THIS_HOME -name "$PATTERN" | tr '\n' ' ')
+	do_rm "$ELMT_LIST"
+}
+
+while read
+do
+	process_pattern "$REPLY"
+done < $THIS_HOME/.gitignore
