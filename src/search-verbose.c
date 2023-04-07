@@ -71,7 +71,7 @@ static int cr(const char * name, int line)
   if(!buffer_is_empty(&space_buf) || (nb_tab > 0))
   {
     console_out("[%s:%d] ", name, line);
-    if(!buffer_is_empty(&line_buf)) console_out(line_buf.buffer);
+    if(!buffer_is_empty(&line_buf)) console_out("%s", line_buf.buffer);
     if(!buffer_is_empty(&space_buf))
       console_out("\e[41m%s\e[0m", space_buf.buffer);
     console_out("\n");

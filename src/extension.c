@@ -41,7 +41,7 @@ void display_extensions()
   const char ** extensions = __extensions();
   for(int i = 0; i < extensions_size; i++)
   {
-    if(i == 0) console_err(*extensions++);
+    if(i == 0) console_err("%s", *extensions++);
     else console_err(":%s", *extensions++);
   }
 }
