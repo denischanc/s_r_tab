@@ -1,11 +1,28 @@
 Search/Replace Tabulation
 =========================
 
+*s_tab/r_tab* allow to _search/replace_ tabulation, dummy end of line inside a directory,
+an entire project, on a file.
+
+NOTE: On _search_ feature, there is a more verbose mode.
+
+== Download
+
+https://github.com/denischanc/s_r_tab/releases[^]
+
 == Install
+
+See link:INSTALL[].
 
 [source, shell]
 ----
+#> tar xf s_r_tab-x.y.z.tar.xz
+#> cd s_r_tab-x.y.z
 #> ./configure
-#> make
 #> make install
 ----
+
+== Utilisation
+
+img::img/s_tab.jpg[]
+img::img/s_tab-V-e_sh.jpg[]
