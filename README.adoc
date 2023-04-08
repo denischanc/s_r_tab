@@ -21,13 +21,13 @@ See link:INSTALL[].
 
 [source, shell]
 ----
-#> tar xf s_r_tab-x.y.z.tar.xz
-#> cd s_r_tab-x.y.z
-#> ./configure
-#> make install
+# tar xf s_r_tab-x.y.z.tar.xz
+# cd s_r_tab-x.y.z
+# ./configure
+# make install
 ----
 
-== Utilisation
+== Using
 
 image::s_tab.jpg[]
 image::s_tab-V-e_sh.jpg[]
