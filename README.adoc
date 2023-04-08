@@ -4,7 +4,7 @@ Denis Chancogne <denis.chancogne@free.fr>
 :imagesdir: img
 :toc:
 :icons: font
-:source-highlighter: coderay
+:source-highlighter: pygments
 
 *s_tab/r_tab* allow to _search/replace_ tabulation, dummy end of line inside a directory,
 an entire project, on a file.
@@ -19,7 +19,7 @@ https://github.com/denischanc/s_r_tab/releases[]
 
 See link:INSTALL[].
 
-[source, shell]
+[source, bash]
 ----
 # tar xf s_r_tab-x.y.z.tar.xz
 # cd s_r_tab-x.y.z
