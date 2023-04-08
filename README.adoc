@@ -19,7 +19,7 @@ https://github.com/denischanc/s_r_tab/releases[]
 
 See link:INSTALL[].
 
-[source, bash]
+[source, shell]
 ----
 # tar xf s_r_tab-x.y.z.tar.xz
 # cd s_r_tab-x.y.z
