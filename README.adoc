@@ -1,5 +1,10 @@
 Search/Replace Tabulation
 =========================
+Denis Chancogne <denis.chancogne@free.fr>
+:imagesdir: img
+:toc:
+:icons: font
+:source-highlighter: coderay
 
 *s_tab/r_tab* allow to _search/replace_ tabulation, dummy end of line inside a directory,
 an entire project, on a file.
@@ -8,7 +13,7 @@ NOTE: On _search_ feature, there is a more verbose mode.
 
 == Download
 
-https://github.com/denischanc/s_r_tab/releases[^]
+https://github.com/denischanc/s_r_tab/releases[]
 
 == Install
 
@@ -24,5 +29,5 @@ See link:INSTALL[].
 
 == Utilisation
 
-img::img/s_tab.jpg[]
-img::img/s_tab-V-e_sh.jpg[]
+image::s_tab.jpg[]
+image::s_tab-V-e_sh.jpg[]
