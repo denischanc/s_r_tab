@@ -1,4 +1,8 @@
 
+= 1.16.1
+
+* Mv error variable declaration for gcc old version
+
 = 1.16.0
 
 * Add verbose, space, extension options

@@ -59,7 +59,7 @@ static int loop(FILE * file, FILE * pid_file, const char * pid_name,
   int * modified)
 {
   char c;
-  int space_tab = 0;
+  int space_tab = 0, error;
 
   while(fread(&c, sizeof(char), 1, file) == 1)
   {
@@ -71,7 +71,7 @@ static int loop(FILE * file, FILE * pid_file, const char * pid_name,
       case '\n': if(space_tab != 0) *modified = __TRUE; space_tab = 0;
 
       default:
-        int error = __FALSE;
+        error = __FALSE;
 
         for(int i = 0; i < space_tab; i++)
           if(!fprintf(pid_file, " ")) error = __TRUE;
