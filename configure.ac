@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.71])
-AC_INIT([s_r_tab], [1.16.1-dev], [denis.chancogne@free.fr])
+AC_INIT([s_r_tab], [1.16.1], [denis.chancogne@free.fr])
 AC_CONFIG_SRCDIR([src/s_r_tab.c])
 AC_CONFIG_HEADERS([src/config.h])
 AM_INIT_AUTOMAKE([subdir-objects])
