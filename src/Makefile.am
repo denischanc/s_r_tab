@@ -2,29 +2,31 @@
 bin_PROGRAMS = s_r_tab
 
 s_r_tab_SOURCES = \
-  s_r_tab.c \
+  buffer.c \
+  console.c \
   extension.c \
-  usage.c \
+  parser.c \
   process.c \
-  search.c \
+  replace.c \
+  scanner.c \
   search-simple.c \
   search-verbose.c \
-  replace.c \
-  buffer.c \
-  console.c
+  s_r_tab.c \
+  usage.c
 
 noinst_HEADERS = \
+  buffer.h \
   common.h \
-  s_r_tab.h \
+  console.h \
   extension.h \
-  usage.h \
+  parser.h \
   process.h \
-  search.h \
+  replace.h \
+  scanner.h \
   search-simple.h \
   search-verbose.h \
-  replace.h \
-  buffer.h \
-  console.h
+  s_r_tab.h \
+  usage.h
 
 install-exec-hook:
 	ln -sf s_r_tab $(DESTDIR)$(bindir)/s_tab

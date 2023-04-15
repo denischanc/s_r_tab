@@ -1,8 +1,8 @@
 #ifndef __REPLACE_H__
 #define __REPLACE_H__
 
-extern int nb_space;
+#include "parser.h"
 
-int file_replace(const char * name);
+extern SRT_PARSER replace_parser;
 
 #endif

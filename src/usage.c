@@ -5,11 +5,8 @@
 #include <stdlib.h>
 #include "common.h"
 #include "extension.h"
-#include "process.h"
-#include "s_r_tab.h"
-#include "replace.h"
-#include "search.h"
 #include "console.h"
+#include "s_r_tab.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -25,6 +22,9 @@ static struct option long_options[] =
 };
 
 static const char * short_options = "vrs:e:V";
+
+int dis_version = __FALSE, recursive = __TRUE, nb_space = 2,
+  verbose = __FALSE;
 
 /*******************************************************************************
 *******************************************************************************/

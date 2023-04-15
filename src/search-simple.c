@@ -11,13 +11,13 @@
 
 static int space_tab;
 
-static BUFFER tab_msg_buf, endline_msg_buf;
+static BUFFER tab_msg_buf, endline_msg_buf, space_ub_msg_buf;
 static int buffer_init_ok = __FALSE;
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void start()
+static int start()
 {
   space_tab = 0;
 
@@ -26,12 +26,16 @@ static void start()
     buffer_init_ok = __TRUE;
     buffer_init(&tab_msg_buf);
     buffer_init(&endline_msg_buf);
+    buffer_init(&space_ub_msg_buf);
   }
   else
   {
     buffer_clean(&tab_msg_buf);
     buffer_clean(&endline_msg_buf);
+    buffer_clean(&space_ub_msg_buf);
   }
+
+  return __TRUE;
 }
 
 /*******************************************************************************
@@ -41,7 +45,7 @@ static int this_cat_line(BUFFER * buffer)
 {
   if(!buffer_is_empty(buffer) && !buffer_add_string(buffer, ", "))
     return __FALSE;
-  else return search_cat_line(buffer);
+  else return parser_cat_line(buffer);
 }
 
 /*******************************************************************************
@@ -65,7 +69,16 @@ static int space()
 /*******************************************************************************
 *******************************************************************************/
 
-static int cr(const char * name, int line)
+static int space_ub()
+{
+  space_tab++;
+  return this_cat_line(&space_ub_msg_buf);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static int cr()
 {
   if((space_tab != 0) && !this_cat_line(&endline_msg_buf)) return __FALSE;
   space_tab = 0;
@@ -84,17 +97,20 @@ static int other(char c)
 /*******************************************************************************
 *******************************************************************************/
 
-static int stop(const char * name, int line)
+static int stop(int ok)
 {
-  if(!cr(name, line)) return __FALSE;
+  if(!ok || !cr()) return __FALSE;
 
-  if(!buffer_is_empty(&tab_msg_buf) || !buffer_is_empty(&endline_msg_buf))
+  if(!buffer_is_empty(&tab_msg_buf) || !buffer_is_empty(&endline_msg_buf) ||
+     !buffer_is_empty(&space_ub_msg_buf))
   {
-    console_out("-----[%s]-----\n", name);
+    console_out("-----[%s]-----\n", parser_ws.path);
     if(!buffer_is_empty(&tab_msg_buf))
       console_out("\tTab: %s\n", tab_msg_buf.buffer);
     if(!buffer_is_empty(&endline_msg_buf))
       console_out("\tEnd line: %s\n", endline_msg_buf.buffer);
+    if(!buffer_is_empty(&space_ub_msg_buf))
+      console_out("\tUnbreakable space: %s\n", space_ub_msg_buf.buffer);
   }
 
   return __TRUE;
@@ -103,11 +119,12 @@ static int stop(const char * name, int line)
 /*******************************************************************************
 *******************************************************************************/
 
-SEARCH_SCANNER scanner_simple =
+SRT_PARSER search_simple_parser =
 {
   start,
   tab,
   space,
+  space_ub,
   cr,
   other,
   stop

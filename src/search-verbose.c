@@ -4,37 +4,39 @@
 #include <stdio.h>
 #include "common.h"
 #include "buffer.h"
-#include "replace.h"
 #include "console.h"
+#include "usage.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
-static BUFFER line_buf, space_buf, tab_buf;
+static BUFFER line_buf, notmod_buf, mod_buf;
 static int buffer_init_ok = __FALSE;
 
-static int nb_tab;
+static int is_mod;
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void start()
+static int start()
 {
-  nb_tab = 0;
+  is_mod = __FALSE;
 
   if(!buffer_init_ok)
   {
     buffer_init_ok = __TRUE;
     buffer_init(&line_buf);
-    buffer_init(&space_buf);
-    buffer_init(&tab_buf);
+    buffer_init(&notmod_buf);
+    buffer_init(&mod_buf);
   }
   else
   {
     buffer_clean(&line_buf);
-    buffer_clean(&space_buf);
-    buffer_clean(&tab_buf);
+    buffer_clean(&notmod_buf);
+    buffer_clean(&mod_buf);
   }
+
+  return __TRUE;
 }
 
 /*******************************************************************************
@@ -42,15 +44,15 @@ static void start()
 
 static int tab()
 {
-  if(!buffer_add_string(&tab_buf, "\e[44m")) return __FALSE;
+  if(!buffer_add_string(&mod_buf, "\e[44m")) return __FALSE;
   for(int i = 0; i < nb_space; i++)
   {
-    if(!buffer_add(&tab_buf, ' ')) return __FALSE;
-    if(!buffer_add(&space_buf, ' ')) return __FALSE;
+    if(!buffer_add(&mod_buf, ' ')) return __FALSE;
+    if(!buffer_add(&notmod_buf, ' ')) return __FALSE;
   }
-  if(!buffer_add_string(&tab_buf, "\e[0m")) return __FALSE;
+  if(!buffer_add_string(&mod_buf, "\e[0m")) return __FALSE;
 
-  nb_tab++;
+  is_mod = __TRUE;
 
   return __TRUE;
 }
@@ -60,27 +62,42 @@ static int tab()
 
 static int space()
 {
-  return buffer_add(&tab_buf, ' ') && buffer_add(&space_buf, ' ');
+  return buffer_add(&mod_buf, ' ') && buffer_add(&notmod_buf, ' ');
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static int cr(const char * name, int line)
+static int space_ub()
 {
-  if(!buffer_is_empty(&space_buf) || (nb_tab > 0))
+  if(!buffer_add_string(&mod_buf, "\e[44m")) return __FALSE;
+  if(!buffer_add(&mod_buf, ' ')) return __FALSE;
+  if(!buffer_add(&notmod_buf, ' ')) return __FALSE;
+  if(!buffer_add_string(&mod_buf, "\e[0m")) return __FALSE;
+
+  is_mod = __TRUE;
+
+  return __TRUE;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static int cr()
+{
+  if(!buffer_is_empty(&notmod_buf) || is_mod)
   {
-    console_out("[%s:%d] ", name, line);
+    console_out("[%s:%d] ", parser_ws.path, parser_ws.line);
     if(!buffer_is_empty(&line_buf)) console_out("%s", line_buf.buffer);
-    if(!buffer_is_empty(&space_buf))
-      console_out("\e[41m%s\e[0m", space_buf.buffer);
+    if(!buffer_is_empty(&notmod_buf))
+      console_out("\e[41m%s\e[0m", notmod_buf.buffer);
     console_out("\n");
   }
 
-  nb_tab = 0;
+  is_mod = __FALSE;
 
-  buffer_clean(&tab_buf);
-  buffer_clean(&space_buf);
+  buffer_clean(&mod_buf);
+  buffer_clean(&notmod_buf);
   buffer_clean(&line_buf);
 
   return __TRUE;
@@ -91,10 +108,10 @@ static int cr(const char * name, int line)
 
 static int other(char c)
 {
-  if(!buffer_add_string(&line_buf, tab_buf.buffer)) return __FALSE;
+  if(!buffer_add_string(&line_buf, mod_buf.buffer)) return __FALSE;
 
-  buffer_clean(&tab_buf);
-  buffer_clean(&space_buf);
+  buffer_clean(&mod_buf);
+  buffer_clean(&notmod_buf);
 
   return buffer_add(&line_buf, c);
 }
@@ -102,19 +119,20 @@ static int other(char c)
 /*******************************************************************************
 *******************************************************************************/
 
-static int stop(const char * name, int line)
+static int stop(int ok)
 {
-  return cr(name, line);
+  return !ok ? __FALSE : cr();
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-SEARCH_SCANNER scanner_verbose =
+SRT_PARSER search_verbose_parser =
 {
   start,
   tab,
   space,
+  space_ub,
   cr,
   other,
   stop

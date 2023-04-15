@@ -7,11 +7,94 @@
 #include <unistd.h>
 #include "common.h"
 #include "console.h"
+#include "usage.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
-int nb_space = 2;
+static char * pid_name;
+static FILE * pid_file;
+
+static int space_tab, mod;
+
+/*******************************************************************************
+*******************************************************************************/
+
+static int start()
+{
+  space_tab = 0;
+  mod = __FALSE;
+
+  pid_name = (char *)malloc((strlen(parser_ws.path) + 20) * sizeof(char));
+  if(pid_name == NULL) return console_errno(__FUNCTION__);
+  sprintf(pid_name, "%s.%d", parser_ws.path, getpid());
+
+  pid_file = fopen(pid_name, "w");
+  if(pid_file == NULL)
+  {
+    free(pid_name);
+    return console_err("Unable to open temporary file : [%s]\n", pid_name);
+  }
+
+  return __TRUE;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static int tab()
+{
+  space_tab += nb_space;
+  mod = __TRUE;
+  return __TRUE;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static int space()
+{
+  space_tab++;
+  return __TRUE;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static int space_ub()
+{
+  space_tab++;
+  mod = __TRUE;
+  return __TRUE;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static int other(char c)
+{
+  int err = __FALSE;
+
+  for(int i = 0; i < space_tab && !err; i++)
+    if(!fprintf(pid_file, " ")) err = __TRUE;
+  space_tab = 0;
+
+  if(!err && !fprintf(pid_file, "%c", c)) err = __TRUE;
+
+  if(err) return console_err("Unable to write into file : [%s]\n", pid_name);
+  return __TRUE;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static int cr()
+{
+  if(space_tab != 0) mod = __TRUE;
+  space_tab = 0;
+
+  return other('\n');
+}
 
 /*******************************************************************************
 *******************************************************************************/
@@ -39,10 +122,9 @@ static int copy(const char * src, const char * dst)
   {
     if((fwrite(buffer, sizeof(char), size, file_dst)) != size)
     {
-      console_err("Unable to write into file : [%s]\n", dst);
       fclose(file_src);
       fclose(file_dst);
-      return __FALSE;
+      return console_err("Unable to write into file : [%s]\n", dst);
     }
   }
 
@@ -55,91 +137,44 @@ static int copy(const char * src, const char * dst)
 /*******************************************************************************
 *******************************************************************************/
 
-static int loop(FILE * file, FILE * pid_file, const char * pid_name,
-  int * modified)
+static int stop(int ok)
 {
-  char c;
-  int space_tab = 0, error;
+  fclose(pid_file);
 
-  while(fread(&c, sizeof(char), 1, file) == 1)
+  if(ok)
   {
-    switch(c)
+    if(mod)
     {
-      case '\t': space_tab += nb_space; *modified = __TRUE; break;
-      case ' ': space_tab++; break;
-
-      case '\n': if(space_tab != 0) *modified = __TRUE; space_tab = 0;
-
-      default:
-        error = __FALSE;
-
-        for(int i = 0; i < space_tab; i++)
-          if(!fprintf(pid_file, " ")) error = __TRUE;
-        space_tab = 0;
-        if(!fprintf(pid_file, "%c", c)) error = __TRUE;
-
-        if(error)
-          return console_err("Unable to write into file : [%s]\n", pid_name);
+      if(copy(pid_name, parser_ws.path))
+      {
+        console_out("File modified : [%s]\n", parser_ws.path);
+      }
+      else
+      {
+        console_err("Unable to copy [%s] into [%s]\n", pid_name,
+          parser_ws.path);
+        ok = __FALSE;
+      }
     }
+    else console_out("File not modified : [%s]\n", parser_ws.path);
   }
-
-  return __TRUE;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static int end_replace(int modified, const char * name, const char * pid_name)
-{
-  if(modified)
-  {
-    if(copy(pid_name, name)) console_out("File modified : [%s]\n", name);
-    else
-    {
-      console_err("Unable to copy [%s] into [%s]\n", pid_name, name);
-      return console_err("Delete [%s] yourself ...\n", pid_name);
-    }
-  }
-  else console_out("File not modified : [%s]\n", name);
 
   remove(pid_name);
+  free(pid_name);
 
-  return __TRUE;
+  return ok;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-int file_replace(const char * name)
+SRT_PARSER replace_parser =
 {
-  FILE * file = fopen(name, "r"), * pid_file;
-  char * pid_name;
-  int modified = __FALSE, result;
-
-  if(!file) return console_err("Unable to open file : [%s]\n", name);
-
-  pid_name = (char *)malloc((strlen(name) + 20) * sizeof(char));
-  if(!pid_name)
-  {
-    console_errno(__FUNCTION__);
-    fclose(file);
-    return __FALSE;
-  }
-  sprintf(pid_name, "%s.%d", name, getpid());
-  pid_file = fopen(pid_name, "w");
-  if(!pid_file)
-  {
-    console_err("Unable to open temporary file : [%s]\n", pid_name);
-    fclose(file); free(pid_name);
-    return __FALSE;
-  }
-
-  result = loop(file, pid_file, pid_name, &modified);
-  fclose(file); fclose(pid_file);
-
-  if(result) result = end_replace(modified, name, pid_name);
-  else remove(pid_name);
-  free(pid_name);
-
-  return result;
-}
+  start,
+  tab,
+  space,
+  space_ub,
+  cr,
+  other,
+  stop
+};

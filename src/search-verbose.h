@@ -1,8 +1,8 @@
 #ifndef __SEARCH_VERBOSE_H__
 #define __SEARCH_VERBOSE_H__
 
-#include "search.h"
+#include "parser.h"
 
-extern SEARCH_SCANNER scanner_verbose;
+extern SRT_PARSER search_verbose_parser;
 
 #endif
