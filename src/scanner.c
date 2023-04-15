@@ -6,6 +6,9 @@
 /*******************************************************************************
 *******************************************************************************/
 
+#define SP_UB_PREV (0xc2 - 0x100)
+#define SP_UB_CUR (0xa0 - 0x100)
+
 static int is_prev;
 static char c, prev;
 
@@ -18,8 +21,8 @@ static int scan_prev()
 {
   switch(c)
   {
-    case (0xa0 - 0x100):
-      if(prev == 0xc2) return parser -> space_ub();
+    case SP_UB_CUR:
+      if(prev == SP_UB_PREV) return parser -> space_ub();
   }
 
   if(!parser -> other(prev)) return __FALSE;
@@ -43,7 +46,7 @@ static int scan_main()
     case '\t': if(!parser -> tab()) return __FALSE; break;
     case ' ': if(!parser -> space()) return __FALSE; break;
 
-    case (0xc2 - 0x100): is_prev = __TRUE; prev = c; break;
+    case SP_UB_PREV: is_prev = __TRUE; prev = c; break;
 
     default: if(!parser -> other(c)) return __FALSE;
   }
