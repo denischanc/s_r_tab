@@ -83,7 +83,7 @@ static int space_ub()
 /*******************************************************************************
 *******************************************************************************/
 
-static int cr()
+static int lf()
 {
   if(!buffer_is_empty(&notmod_buf) || is_mod)
   {
@@ -101,6 +101,11 @@ static int cr()
   buffer_clean(&line_buf);
 
   return __TRUE;
+}
+
+static int crlf()
+{
+  return lf();
 }
 
 /*******************************************************************************
@@ -121,7 +126,7 @@ static int other(char c)
 
 static int stop(int ok)
 {
-  return !ok ? __FALSE : cr();
+  return !ok ? __FALSE : lf();
 }
 
 /*******************************************************************************
@@ -133,7 +138,8 @@ SRT_PARSER search_verbose_parser =
   tab,
   space,
   space_ub,
-  cr,
+  lf,
+  crlf,
   other,
   stop
 };

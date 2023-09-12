@@ -26,6 +26,8 @@ static SRT_PARSER * parser;
 
 static int process_file(const char * path, int lvl)
 {
+  console_debug("file[%s] level[%d]\n", path, lvl);
+
   if((lvl != 0) && !extension_valid(path)) return __TRUE;
 
   FILE * file = fopen(path, "r");
@@ -63,6 +65,8 @@ static int process_dir(const char * path, int lvl)
   DIR * dir;
   struct dirent * field;
   int result = __TRUE;
+
+  console_debug("directory[%s] level[%d]\n", path, lvl);
 
   dir = opendir(path);
   if(dir)

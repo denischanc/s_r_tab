@@ -78,11 +78,16 @@ static int space_ub()
 /*******************************************************************************
 *******************************************************************************/
 
-static int cr()
+static int lf()
 {
   if((space_tab != 0) && !this_cat_line(&endline_msg_buf)) return __FALSE;
   space_tab = 0;
   return __TRUE;
+}
+
+static int crlf()
+{
+  return lf();
 }
 
 /*******************************************************************************
@@ -99,7 +104,7 @@ static int other(char c)
 
 static int stop(int ok)
 {
-  if(!ok || !cr()) return __FALSE;
+  if(!ok || !lf()) return __FALSE;
 
   if(!buffer_is_empty(&tab_msg_buf) || !buffer_is_empty(&endline_msg_buf) ||
      !buffer_is_empty(&space_ub_msg_buf))
@@ -125,7 +130,8 @@ SRT_PARSER search_simple_parser =
   tab,
   space,
   space_ub,
-  cr,
+  lf,
+  crlf,
   other,
   stop
 };

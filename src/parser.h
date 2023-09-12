@@ -10,7 +10,8 @@ typedef struct
   int (*tab)();
   int (*space)();
   int (*space_ub)();
-  int (*cr)();
+  int (*lf)();
+  int (*crlf)();
   int (*other)(char c);
 
   int (*stop)(int ok);

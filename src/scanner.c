@@ -2,6 +2,7 @@
 #include "scanner.h"
 
 #include "common.h"
+#include "console.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -23,6 +24,14 @@ static int scan_prev()
   {
     case SP_UB_CUR:
       if(prev == SP_UB_PREV) return parser -> space_ub();
+
+    case '\n':
+      if(prev == '\r')
+      {
+        if(!parser -> crlf()) return __FALSE;
+        parser_ws.line++;
+        return __TRUE;
+      }
   }
 
   if(!parser -> other(prev)) return __FALSE;
@@ -39,7 +48,7 @@ static int scan_main()
   switch(c)
   {
     case '\n':
-      if(!parser -> cr()) return __FALSE;
+      if(!parser -> lf()) return __FALSE;
       parser_ws.line++;
       break;
 
@@ -47,6 +56,8 @@ static int scan_main()
     case ' ': if(!parser -> space()) return __FALSE; break;
 
     case SP_UB_PREV: is_prev = __TRUE; prev = c; break;
+
+    case '\r': is_prev = __TRUE; prev = c; break;
 
     default: if(!parser -> other(c)) return __FALSE;
   }
@@ -63,7 +74,11 @@ int scan(const char * path, FILE * file, SRT_PARSER * parser_)
   parser_ws.line = 1;
   parser = parser_;
 
+  console_debug("file[%s] start\n", path);
+
   if(!parser -> start()) return __FALSE;
+
+  console_debug("file[%s] read\n", path);
 
   is_prev = __FALSE;
   while(fread(&c, sizeof(char), 1, file) == 1)
@@ -75,6 +90,8 @@ int scan(const char * path, FILE * file, SRT_PARSER * parser_)
   }
 
   if(is_prev) if(!parser -> other(prev)) return parser -> stop(__FALSE);
+
+  console_debug("file[%s] stop\n", path);
 
   return parser -> stop(__TRUE);
 }

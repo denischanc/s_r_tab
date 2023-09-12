@@ -88,12 +88,23 @@ static int other(char c)
 /*******************************************************************************
 *******************************************************************************/
 
-static int cr()
+static int crlf_(int is_cr)
 {
   if(space_tab != 0) mod = __TRUE;
   space_tab = 0;
 
+  if(is_cr && !other('\r')) return __FALSE;
   return other('\n');
+}
+
+static int lf()
+{
+  return crlf_(__FALSE);
+}
+
+static int crlf()
+{
+  return crlf_(__TRUE);
 }
 
 /*******************************************************************************
@@ -174,7 +185,8 @@ SRT_PARSER replace_parser =
   tab,
   space,
   space_ub,
-  cr,
+  lf,
+  crlf,
   other,
   stop
 };

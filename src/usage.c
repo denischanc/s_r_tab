@@ -18,13 +18,14 @@ static struct option long_options[] =
   {"space", required_argument, NULL, 's'},
   {"extensions", required_argument, NULL, 'e'},
   {"verbose", no_argument, NULL, 'V'},
+  {"debug", no_argument, NULL, 'd'},
   {NULL, 0, NULL, 0}
 };
 
-static const char * short_options = "vrs:e:V";
+static const char * short_options = "vrs:e:Vd";
 
 int dis_version = __FALSE, recursive = __TRUE, nb_space = 2,
-  verbose = __FALSE;
+  verbose = __FALSE, debug = __FALSE;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -37,6 +38,7 @@ int dis_version = __FALSE, recursive = __TRUE, nb_space = 2,
   "     -s, --space                        Space nb for tab (%d)\n" \
   "     -e, --extensions                   Other extensions (ext1:...)\n" \
   "     -V, --verbose                      Verbose\n" \
+  "     -d, --debug                        Debug\n" \
   "Extensions: "
 
 void usage(const char * exe)
@@ -70,6 +72,8 @@ int parse_args(int argc, char * const argv[])
       case 'e': add_extensions(optarg); break;
 
       case 'V': verbose = __TRUE; break;
+
+      case 'd': debug = __TRUE; break;
 
       default: return __FALSE;
     }
